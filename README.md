@@ -14,9 +14,10 @@ Having spent time with both conda and uv, I felt friction when (1) work to be do
 
 ## Usage
 
-1. Configure an UVDA_ENVS dir. In this dir shall be envs/ themselves and also a toml config file to screen for all other uv / python kernels
+1. `uvda init` to setup a config file. In this config file will setup an UVDA_ENVS dir. In this dir shall be envs/ themselves and also a toml config file to screen for all other uv / python kernels
+2. `uvda list` to show all usable ENVs
 2. `uvda activate ENV` will activate the python env made discoverable in UVDA_ENVS
 3. `uvda deactivate` will deactivate the python env
-3. `uvda uv xxx` will then pass through to call `uv xxx` in the same directory
+3. `uvda uv xxx` will then pass through to call `uv xxx` in the same env if already activated
 
 
