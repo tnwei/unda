@@ -4,7 +4,10 @@ import argparse
 
 SKIP_SCAN_DIRS = [".git", "node_modules", "__pycache__"]
 
-def handle_root(): pass;
+
+def handle_root():
+    pass
+
 
 def handle_list():
     path_env_string = os.getenv("UNDAPATH")
@@ -16,19 +19,25 @@ def handle_list():
         paths = path_env_string.split(os.pathsep)
 
         for path in paths:
-            python_env_dirs.extend(get_python_env_dirs(path))
+            python_env_dirs.extend(get_python_env_dirs(path, current_recursion_depth=0))
 
     else:
         # TODO: Does it make sense to set up a default?
         # Not working upon setup is a bit killjoy hmm
         print("UNDAPATH env var is not set! Exiting")
         return
-    
+
     for path in python_env_dirs:
         print(path)
 
-def handle_activate(): pass;
-def handle_deactivate(): pass;
+
+def handle_activate():
+    pass
+
+
+def handle_deactivate():
+    pass
+
 
 def is_python_env(p: Path) -> bool:
     # Slightly unrelated, but VSCode autodiscovery relies on using a dedicated binary
@@ -40,12 +49,22 @@ def is_python_env(p: Path) -> bool:
         return True
     return False
 
-def get_python_env_dirs(rootpath: str | Path):
+
+def get_python_env_dirs(
+    rootpath: str | Path, current_recursion_depth: int, max_recursion_depth: int = 5
+):
+    # W/o recursion limits, this is same time as conda env list on my machine, ~1s
+    # With recursion limits = 5, this takes ~100ms according to `time`
+    # I guess probability of a dir to be a python env decreases w depth?
+    # Still, leaving a note to say that I eyeballed it
     results = []
     p = Path(rootpath).expanduser()
     if is_python_env(p):
         results.append(p)
-        # Return early since envs dont nest 
+        # Return early since envs dont nest
+        return results
+
+    if current_recursion_depth == max_recursion_depth:
         return results
 
     for child in p.iterdir():
@@ -53,13 +72,21 @@ def get_python_env_dirs(rootpath: str | Path):
             continue
         # Prevent accidentally looping with symlinks
         if child.is_dir() and not child.is_symlink():
-            results.extend(get_python_env_dirs(child))
+            results.extend(
+                get_python_env_dirs(
+                    child,
+                    current_recursion_depth=current_recursion_depth + 1,
+                    max_recursion_depth=max_recursion_depth,
+                )
+            )
 
     return results
 
 
 def entrypoint():
-    parser = argparse.ArgumentParser(description="unda - manage arbitrary python envs like conda")
+    parser = argparse.ArgumentParser(
+        description="unda - manage arbitrary python envs like conda"
+    )
     subparsers = parser.add_subparsers(dest="whichsubcommand")
 
     list_parser = subparsers.add_parser("list")
@@ -67,7 +94,7 @@ def entrypoint():
     deactivate_parser = subparsers.add_parser("deactivate")
 
     args = parser.parse_args()
-    
+
     if args.whichsubcommand is None:
         handle_root()
     elif args.whichsubcommand == "list":
@@ -76,4 +103,3 @@ def entrypoint():
         handle_activate()
     elif args.whichsubcommand == "deactivate":
         handle_deactivate()
-
