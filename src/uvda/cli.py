@@ -6,8 +6,26 @@ SKIP_SCAN_DIRS = [".git", "node_modules", "__pycache__"]
 
 def handle_root(): pass;
 
-def handle_list(python_env_dirs: list[Path]):
-    print(python_env_dirs)
+def handle_list():
+    path_env_string = os.getenv("UNDAPATH")
+    python_env_dirs = []
+
+    if path_env_string is not None:
+        # os.path.sep != os.pathsep
+        # https://stackoverflow.com/questions/1499019/how-to-get-the-path-environment-variable-separator-in-python
+        paths = path_env_string.split(os.pathsep)
+
+        for path in paths:
+            python_env_dirs.append(get_python_env_dirs(path))
+
+    else:
+        # TODO: Does it make sense to set up a default?
+        # Not working upon setup is a bit killjoy hmm
+        print("UNDAPATH env var is not set! Exiting")
+        return
+    
+    for path in python_env_dirs:
+        print(path)
 
 def handle_activate(): pass;
 def handle_deactivate(): pass;
@@ -49,28 +67,11 @@ def entrypoint():
     deactivate_parser = subparsers.add_parser("deactivate")
 
     args = parser.parse_args()
-
-    path_env_string = os.getenv("UNDAPATH")
-    python_env_dirs = []
-
-    if path_env_string is not None:
-        # os.path.sep != os.pathsep
-        # https://stackoverflow.com/questions/1499019/how-to-get-the-path-environment-variable-separator-in-python
-        paths = path_env_string.split(os.pathsep)
-
-        for path in paths:
-            python_env_dirs.append(get_python_env_dirs(path))
-
-    else:
-        # TODO: Does it make sense to set up a default?
-        # Not working upon setup is a bit killjoy hmm
-        print("UNDAPATH env var is not set! Exiting")
-        return
     
     if args.whichsubcommand is None:
         handle_root()
     elif args.whichsubcommand == "list":
-        handle_list(python_env_dirs)
+        handle_list()
     elif args.whichsubcommand == "activate":
         handle_activate()
     elif args.whichsubcommand == "deactivate":
