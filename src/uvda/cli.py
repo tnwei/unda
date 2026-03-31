@@ -2,6 +2,8 @@ import os
 from pathlib import Path
 import argparse
 
+SKIP_SCAN_DIRS = [".git", "node_modules", "__pycache__"]
+
 def handle_root(): pass;
 
 def handle_list(python_env_dirs: list[Path]):
@@ -25,10 +27,16 @@ def get_python_env_dirs(rootpath: str | Path):
     p = Path(rootpath).expanduser()
     if is_python_env(p):
         results.append(p)
+        # Return early since envs dont nest 
+        return results
+
     for child in p.iterdir():
+        if child.name in SKIP_SCAN_DIRS:
+            continue
         # Prevent accidentally looping with symlinks
         if child.is_dir() and not child.is_symlink():
             results.extend(get_python_env_dirs(child))
+
     return results
 
 
