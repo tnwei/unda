@@ -1,13 +1,13 @@
 [project]
-name = "uvda"
+name = "unda"
 version = "0.1.0"
-description = "Use uv like conda"
+description = "conda but universal for arbitrary Python envs"
 readme = "README.md"
 requires-python = ">=3.8"
 dependencies = []
 
 [project.scripts]
-uvda = "uvda.cli:entrypoint"
+unda = "unda.cli:entrypoint"
 
 [build-system]
 requires = ["uv_build>=0.10.9,<0.11.0"]
