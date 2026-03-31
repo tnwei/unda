@@ -31,7 +31,10 @@ def handle_list():
         print(path)
 
 
-def handle_activate():
+def handle_activate(env_path):
+    # Found out that child processes cannot affect root env vars
+    # Studied a bit, have to run as bash script! Damn
+    # TODO: Continue by weighing bash shim like conda init or do whole thing in bash
     pass
 
 
@@ -93,6 +96,9 @@ def entrypoint():
     activate_parser = subparsers.add_parser("activate")
     deactivate_parser = subparsers.add_parser("deactivate")
 
+    # Positional arg but optional: https://stackoverflow.com/a/4480202
+    activate_parser.add_argument("env_path", default=".", nargs="?")
+
     args = parser.parse_args()
 
     if args.whichsubcommand is None:
@@ -100,6 +106,6 @@ def entrypoint():
     elif args.whichsubcommand == "list":
         handle_list()
     elif args.whichsubcommand == "activate":
-        handle_activate()
+        handle_activate(args.env_path)
     elif args.whichsubcommand == "deactivate":
         handle_deactivate()
