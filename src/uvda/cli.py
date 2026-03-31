@@ -16,7 +16,7 @@ def handle_list():
         paths = path_env_string.split(os.pathsep)
 
         for path in paths:
-            python_env_dirs.append(get_python_env_dirs(path))
+            python_env_dirs.extend(get_python_env_dirs(path))
 
     else:
         # TODO: Does it make sense to set up a default?
