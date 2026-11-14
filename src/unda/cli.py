@@ -67,6 +67,7 @@ unda() {
         ;;
         hello) echo HELLO WORLD! ;;
         activate) eval "$("$UNDA_EXE" shell bash activate "$2")";;
+        deactivate) deactivate;;
         *) $UNDA_EXE "$@";;
     esac
 }
@@ -132,10 +133,6 @@ def handle_shell_bash(command) -> None:
 
     # Note: how to make multiline payloads work? Rn only the first line gets run
     print(bash_payload)
-
-
-def handle_deactivate():
-    pass
 
 
 def is_python_env(p: Path) -> bool:
