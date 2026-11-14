@@ -50,14 +50,24 @@ def handle_init(shell):
 
     if shell == "bash":
         # Thanks to https://learnxinyminutes.com/bash/
-        # Test this fxn like by running `eval $(uv run unda init bash)` then do unda commands
-        # TODO: How to toggle off the `uv run` bit when not in dev anymore?
+        # Test this fxn like by running `eval $(unda init bash)` then do unda commands
+        # Make sure no need to use `uv run` locally in dev by using `uv tool install --editable .`
         print(r"""
+# Unset existing bash fxns called unda
+unset unda
+# Store current unda exe name to prevent unda the bash fxn wanting to call unda the python script
+# but inadvertently calls itself in an infinite loop!
+UNDA_EXE=$(which unda)
 unda() {
     case $1 in
+        "")
+        $UNDA_EXE
+        # exit 0 to exit with success code, else the case check will carry on
+        exit 0
+        ;;
         hello) echo HELLO WORLD! ;;
-        activate) eval $(uv run unda shell bash activate $2);;
-        *) uv run unda "$@";;
+        activate) eval "$("$UNDA_EXE" shell bash activate "$2")";;
+        *) $UNDA_EXE "$@";;
     esac
 }
 """)
