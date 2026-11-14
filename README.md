@@ -6,17 +6,44 @@ con**da** but **un**iversal for arbitrary Python envs
 
 I used to swear by conda, then later mamba, for maintaining different python envs for different projects. Then uv came along and all was fine and dandy as long as I was working strictly within a single project.
 
-Having spent time with both conda and uv, I felt friction when (1) work to be done is not confined in a single folder (hello fellow Jupyter notebook users), and (2) when duplicating uv environments feel like a waste of disk space. Incredibly, I felt like wanting to use conda sometimes and then feeling the difference in dev ex reminded me why I dont use conda anymore. If you felt that way sometimes, this project is for you.
+Having spent time with both conda and uv, I felt friction when (1) work to be done is not confined in a single folder (hello fellow Jupyter notebook users), and (2) when duplicating uv environments feel like a waste of disk space. At some point I had 60+ python envs on my PC! 
+
+Incredibly, I felt nostalgic for conda, but the feeling quickly went away when I felt the difference in DevEx switching from uv. If you felt that way sometimes, this project is for you.
 
 ## Installation
 
-`uv add git+https://github.com/tnwei/unda`. No third party dependencies, will keep it that way.
+```bash
+# 1. Run ONE of the below to install using your favourite package manager
+uv tool install git+https://github.com/tnwei/unda
+pipx install git+https://github.com/tnwei/unda
+
+# 2. Append this line to your .bashrc
+eval "$(unda init bash)"
+
+# 3. Set an UNDAPATH variable to define the paths you want Unda to search for Python envs
+# Example below, please modify!
+export UNDAPATH=$HOME/projects:$HOME/gitclones:$HOME/work
+```
+
+No third party dependencies, will keep it that way.
+
+Currently supports bash only.
 
 ## Usage
 
-1. `unda list` to show all usable ENVs
-2. `unda activate ENV` will activate the python env and keep it active for the rest of the shell
-3. `unda deactivate` will deactivate the python env
+```bash
+$ unda list
+01: /home/user/work/project_a/etl/.venv
+02: /home/user/projects/project_b/.venv
+03: /home/user/gitclones/project_c/.venv
+
+$ unda activate 3  # 'unda activate 03' works too
+(project_c) $  # (env activated)
+
+(project_c) $ unda deactivate # plain 'deactivate' works too
+$ # (env deactivated)
+
+```
 
 ## Misc
 
