@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 
 SKIP_SCAN_DIRS = [".git", "node_modules", "__pycache__"]
+SUPPORTED_SHELLS = ["bash"]
 
 
 def handle_list():
@@ -28,6 +29,13 @@ def handle_list():
 
 
 def handle_init(shell):
+    """Define a bash fxn unda() that intercepts specific subcmds to run in bash instead of python"""
+    if shell not in SUPPORTED_SHELLS:
+        print(
+            f"Your shell '{shell}' is not among the supported list: {','.join(SUPPORTED_SHELLS)}"
+        )
+        return
+
     if shell == "bash":
         # TODO: placeholder
         print("""
@@ -42,6 +50,12 @@ def handle_shell(shell, command):
     # Python can modify its own env but not its parent
     # So we need to run bash commands in bash
     # This setup allows most of the logic to be in Python and leave the bash bit thin
+    if shell not in SUPPORTED_SHELLS:
+        print(
+            f"Your shell '{shell}' is not among the supported list: {','.join(SUPPORTED_SHELLS)}"
+        )
+        return
+
     if shell == "bash":
         return handle_shell_bash(command)
 
@@ -106,9 +120,18 @@ def entrypoint():
 
     list_parser = subparsers.add_parser("list")
     init_parser = subparsers.add_parser("init")
-    shell_parser = subparsers.add_parser("shell")
+    init_parser.add_argument(
+        "shell",
+        default="bash",
+        help=f"Terminal shell. Supported: {','.join(SUPPORTED_SHELLS)}",
+    )
 
-    shell_parser.add_argument("shell", default="bash")
+    shell_parser = subparsers.add_parser("shell")
+    shell_parser.add_argument(
+        "shell",
+        default="bash",
+        help=f"Terminal shell. Supported: {','.join(SUPPORTED_SHELLS)}",
+    )
     # Positional arg but optional: https://stackoverflow.com/a/4480202
     shell_parser.add_argument("command", default=".", nargs="?")
 
