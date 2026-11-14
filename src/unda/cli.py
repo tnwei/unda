@@ -27,10 +27,26 @@ def handle_list():
         print(path)
 
 
-def handle_activate(env_path):
-    # Found out that child processes cannot affect root env vars
-    # Studied a bit, have to run as bash script! Damn
-    # TODO: Continue by weighing bash shim like conda init or do whole thing in bash
+def handle_init(shell):
+    if shell == "bash":
+        # TODO: placeholder
+        print("""
+echo HELLO WORLD!
+""")
+
+
+def handle_shell(shell, command):
+    # Why do we have `unda init` to pass bash commands into `unda shell $SHELL $COMMAND`?
+    # Coz simple things like activate and deactivate python envs change bash env
+    # When we run a python process from bash, it is spawned as a subprocess of that bash instance
+    # Python can modify its own env but not its parent
+    # So we need to run bash commands in bash
+    # This setup allows most of the logic to be in Python and leave the bash bit thin
+    if shell == "bash":
+        return handle_shell_bash(command)
+
+
+def handle_shell_bash(command):
     pass
 
 
@@ -89,19 +105,30 @@ def entrypoint():
     subparsers = parser.add_subparsers(dest="whichsubcommand")
 
     list_parser = subparsers.add_parser("list")
-    activate_parser = subparsers.add_parser("activate")
-    deactivate_parser = subparsers.add_parser("deactivate")
+    init_parser = subparsers.add_parser("init")
+    shell_parser = subparsers.add_parser("shell")
 
+    shell_parser.add_argument("shell", default="bash")
     # Positional arg but optional: https://stackoverflow.com/a/4480202
-    activate_parser.add_argument("env_path", default=".", nargs="?")
+    shell_parser.add_argument("command", default=".", nargs="?")
+
+    init_parser.add_argument("shell", default="bash")
 
     args = parser.parse_args()
 
     if args.whichsubcommand is None:
         parser.print_help()
     elif args.whichsubcommand == "list":
+        # uvda list
+        # should show all python envs findable in UNDAPATH
         handle_list()
-    elif args.whichsubcommand == "activate":
-        handle_activate(args.env_path)
-    elif args.whichsubcommand == "deactivate":
-        handle_deactivate()
+    elif args.whichsubcommand == "init":
+        # uvda init $SHELL
+        # append the following line to ~/.bashrc:
+        # eval $(uvda init bash)
+        handle_init(args.shell)
+    elif args.whichsubcommand == "shell":
+        # uvda shell $SHELL $command
+        # Receives commands defined in the bash fxn from uvda init
+        # shell should handle unda activate, unda deactivate
+        handle_shell(args.shell, args.command)
