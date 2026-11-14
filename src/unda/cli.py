@@ -92,6 +92,10 @@ def can_int(x):
 
 def handle_shell_bash(command) -> None:
     bash_payload = ""
+
+    # The really nice bit about using native python source /bin/activate and deactivate
+    # is that deactivate is a single word command
+    # and we get the PS1 change from activating the env for free!
     if command[0] == "activate":
         if len(command) == 1:
             # no env to activate, print error msg
@@ -113,6 +117,8 @@ def handle_shell_bash(command) -> None:
                 )
 
             bash_payload = f"source {resolved_env}/bin/activate"
+    elif command[0] == "deactivate":
+        bash_payload = "deactivate"
 
     # Note: how to make multiline payloads work? Rn only the first line gets run
     print(bash_payload)
