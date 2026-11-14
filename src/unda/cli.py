@@ -51,6 +51,7 @@ def handle_init(shell):
     if shell == "bash":
         # Thanks to https://learnxinyminutes.com/bash/
         # Test this fxn like by running `eval $(uv run unda init bash)` then do unda commands
+        # TODO: How to toggle off the `uv run` bit when not in dev anymore?
         print(r"""
 unda() {
     case $1 in
