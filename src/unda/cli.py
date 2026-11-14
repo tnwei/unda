@@ -62,8 +62,8 @@ unda() {
     case $1 in
         "")
         $UNDA_EXE
-        # exit 0 to exit with success code, else the case check will carry on
-        exit 0
+        # Return from the function without closing the interactive shell.
+        return 0
         ;;
         hello) echo HELLO WORLD! ;;
         activate) eval "$("$UNDA_EXE" shell bash activate "$2")";;
