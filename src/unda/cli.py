@@ -6,7 +6,7 @@ SKIP_SCAN_DIRS = [".git", "node_modules", "__pycache__"]
 SUPPORTED_SHELLS = ["bash"]
 
 
-def handle_list():
+def get_all_python_env_dirs_in_undapath():
     # UNDAPATH is folder to recursively scan for python envs!
     path_env_string = os.getenv("UNDAPATH")
     python_env_dirs = []
@@ -25,15 +25,19 @@ def handle_list():
                     max_recursion_depth=5,
                 )
             )
+        return python_env_dirs
 
     else:
         # TODO: Does it make sense to set up a default?
         # Not working upon setup is a bit killjoy hmm
         print("UNDAPATH env var is not set! Exiting")
-        return
+        return []
 
-    for path in python_env_dirs:
-        print(path)
+
+def handle_list():
+    python_env_dirs = get_all_python_env_dirs_in_undapath()
+    for count, path in enumerate(python_env_dirs):
+        print(f"{count + 1:02d}: {path}")
 
 
 def handle_init(shell):
@@ -77,12 +81,40 @@ def handle_shell(shell: str, command: list[str]):
         return handle_shell_bash(command)
 
 
-def handle_shell_bash(command):
+def can_int(x):
+    try:
+        int(x)
+        return True
+    except ValueError:
+        return False
+
+
+def handle_shell_bash(command) -> None:
+    bash_payload = ""
     if command[0] == "activate":
         if len(command) == 1:
+            # no env to activate, print error msg
             print("echo activate requires path of python env to activate!")
         elif len(command) == 2:
-            print("echo source $2/.venv/bin/activate")
+            # have env to activate! resolve the env then print bash cmd
+            env_to_activate = command[1]
+
+            if can_int(env_to_activate):
+                # if can be int'ed, then is a number to lookup from list of envs
+                num_env_to_activate = int(env_to_activate) - 1
+                python_env_dirs = get_all_python_env_dirs_in_undapath()
+                resolved_env = python_env_dirs[num_env_to_activate]
+            else:
+                # cannot be int'ed, match against known envs
+                raise NotImplementedError(
+                    # TODO
+                    "Please provide the env number from unda list! Matching env by name is not implemented yet"
+                )
+
+            bash_payload = f"source {resolved_env}/bin/activate"
+
+    # Note: how to make multiline payloads work? Rn only the first line gets run
+    print(bash_payload)
 
 
 def handle_deactivate():
