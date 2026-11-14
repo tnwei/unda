@@ -1,12 +1,8 @@
+import argparse
 import os
 from pathlib import Path
-import argparse
 
 SKIP_SCAN_DIRS = [".git", "node_modules", "__pycache__"]
-
-
-def handle_root():
-    pass
 
 
 def handle_list():
@@ -102,7 +98,7 @@ def entrypoint():
     args = parser.parse_args()
 
     if args.whichsubcommand is None:
-        handle_root()
+        parser.print_help()
     elif args.whichsubcommand == "list":
         handle_list()
     elif args.whichsubcommand == "activate":
